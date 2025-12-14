@@ -65,7 +65,10 @@ class TestRootEndpoints:
         """Test health check endpoint."""
         response = client.get("/health")
         assert response.status_code == 200
-        assert response.json() == {"status": "healthy"}
+        data = response.json()
+        assert data["status"] == "healthy"
+        assert data["service"] == "Calculator API"
+        assert data["version"] == "2.0.0"
 
 
 class TestUserCreation:
