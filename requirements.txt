@@ -1,13 +1,33 @@
-astroid==3.3.11
-dill==0.4.0
-iniconfig==2.1.0
-isort==6.0.1
-mccabe==0.7.0
-packaging==25.0
-platformdirs==4.4.0
-pluggy==1.6.0
-Pygments==2.19.2
-pylint==3.3.8
+# FastAPI and Web Framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.10.0
+pydantic-settings==2.6.0
+email-validator==2.2.0
+
+# Database
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Security
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.12
+PyJWT==2.10.1
+
+# Testing
 pytest==8.4.2
-pytest-pylint==0.21.0
-tomlkit==0.13.3
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+httpx==0.28.1
+
+# Linting and Code Quality
+pylint==3.3.8
+black==24.10.0
+isort==6.0.1
+mypy==1.13.0
+
+# Other dependencies
+python-dotenv==1.0.1

@@ -1,100 +1,280 @@
-# TinyTools Calculator – In-Class Test (30 min)
+# FastAPI User Management System
 
-## Scenario
-You’ve joined **TinyTools, Inc.** Deliver a production-ready **Python Calculator** library with four operations:
+A production-ready FastAPI application featuring secure user authentication, SQLAlchemy database integration, comprehensive testing, and automated CI/CD deployment.
 
-- **add**, **subtract**, **multiply**, **divide**  
-- **Divide by zero must raise `ZeroDivisionError`.**
+## 🚀 Features
 
-Your team enforces professional workflow:  
-- **Brand-new repo**  
-- **Atomic commits** with required prefixes  
-- Pass **linting**  
-- All **tests** must pass  
-- **100% test coverage** required  
+- **Secure User Management**: Create, read, and delete users with unique constraints
+- **Password Security**: Bcrypt password hashing with verification
+- **Database Integration**: PostgreSQL with SQLAlchemy ORM
+- **Data Validation**: Pydantic schemas for request/response validation
+- **Comprehensive Testing**: Unit and integration tests with pytest
+- **CI/CD Pipeline**: Automated testing and Docker Hub deployment via GitHub Actions
+- **Containerization**: Docker and Docker Compose for easy deployment
 
----
+## 📋 Requirements
 
-## Required Repo Layout
+- Python 3.11+
+- PostgreSQL 15+
+- Docker & Docker Compose (optional, for containerized deployment)
+
+## 🛠️ Installation & Setup
+
+### Local Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd is218-test1-Yash
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
+
+5. **Run with Docker Compose (Recommended)**
+   ```bash
+   docker-compose up -d
+   ```
+   
+   The API will be available at `http://localhost:8000`
+
+### Manual Database Setup
+
+If running without Docker:
+
+```bash
+# Create PostgreSQL database
+createdb fastapi_db
+
+# Set DATABASE_URL in .env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fastapi_db
+
+# Run the application
+uvicorn src.main:app --reload
 ```
 
-README.md
-requirements.txt
-src/
-tests/
+## 🧪 Running Tests
 
-````
-
----
-
-## Commit Rules
-- Every commit message **must** start with one of:  
-  - `chore:` — setup/config/docs  
-  - `feature:` — new functionality **and its tests**  
-  - `fix:` — bug fix or correcting a test  
-
-- **Atomic history**:
-  - Each calculator function (**add, subtract, multiply, divide**) must be delivered in **its own commit**, with the tests **and** the implementation together.  
-  - Do **not** put multiple functions in one commit.  
-  - Do **not** split one function across multiple commits.
-
-- **Minimum 8 commits** required (more is fine; do not squash).
-
-### Example Commit Timeline
-1. `chore: initialize repo with README and requirements`
-2. `chore: add project skeleton (src, tests) and setup notes`
-3. `chore: document how to run lint/tests in README`
-4. `feature: implement add() with unit tests`
-5. `feature: implement subtract() with unit tests`
-6. `feature: implement multiply() with unit tests`
-7. `feature: implement divide() with unit tests including divide-by-zero`
-8. `chore: add coverage command and enforce 100% in README`
-9. *(if needed)* `fix: correct edge case in subtract() test`
-10. *(if needed)* `fix: address pylint error in calculator module`
-
----
-
-## Local Commands (before pushing)
+### Run All Tests
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+pytest
+```
 
-# Lint (must be clean)
-pylint --errors-only src
+### Run Unit Tests Only
+```bash
+pytest tests/test_unit.py -v
+```
 
-# Run tests
-PYTHONPATH=src pytest tests -v
-PYTHONPATH=src pytest --pylint src -v
+### Run Integration Tests Only
+```bash
+pytest tests/test_integration.py -v
+```
 
-# Coverage (must be 100%)
-PYTHONPATH=src coverage run -m pytest tests
-coverage report --fail-under=100
-````
+### Run with Coverage
+```bash
+pytest --cov=src --cov-report=html --cov-report=term-missing
+```
 
----
+View coverage report:
+```bash
+open htmlcov/index.html  # On macOS
+# Or navigate to htmlcov/index.html in your browser
+```
 
-## How Grading Works
+### Test Requirements
 
-Your repository is graded entirely by the **GitHub Actions workflow** in `.github/workflows/ci.yml`.
-If any step fails, you lose points for that category.
+- **Unit tests** test individual components (password hashing, schema validation)
+- **Integration tests** require a database connection and test complete workflows
+- The test suite uses SQLite for integration tests to avoid database setup complexity
 
-### Rubric (100 pts total)
+## 📚 API Documentation
 
-| # | CI Job / Step         | Requirement                                                   | Points | Pass                                    | Fail                 |
-| - | --------------------- | ------------------------------------------------------------- | -----: | --------------------------------------- | -------------------- |
-| 1 | **Commit Policy**     | ≥ 8 commits                                                   |     20 | CI shows “Commit count requirement met” | Fewer than 8 commits |
-| 2 | **Commit Policy**     | All commit messages start with `chore:` / `feature:` / `fix:` |     20 | All messages valid                      | Any message invalid  |
-| 3 | **Project Structure** | `README.md`, `requirements.txt`, `src/`, `tests/` present     |     10 | All present                             | Any missing          |
-| 4 | **Lint Check**        | `pylint --errors-only src` clean                              |     15 | No errors                               | Any error            |
-| 5 | **Pytest-Pylint**     | `pytest --pylint src -v` passes                               |      5 | Pass                                    | Fail                 |
-| 6 | **Unit Tests**        | `pytest tests -v` passes                                      |     15 | All tests pass                          | Any fail             |
-| 7 | **Coverage**          | `coverage report --fail-under=100` shows 100%                 |     15 | Exactly 100%                            | < 100%               |
+Once the application is running, visit:
+- **Interactive API docs (Swagger)**: http://localhost:8000/docs
+- **Alternative docs (ReDoc)**: http://localhost:8000/redoc
 
-**Total = 100 points**
+### API Endpoints
 
----
+#### Health Check
+- `GET /` - Root endpoint
+- `GET /health` - Health check status
 
-## Submission
+#### User Management
+- `POST /users` - Create a new user
+- `GET /users/{user_id}` - Get user by ID
+- `GET /users` - List all users (with pagination)
+- `DELETE /users/{user_id}` - Delete a user
 
-* Push to GitHub/GitLab and share the repo URL **OR** upload a zip including `.git` history.
-* Your **last commit** must be before the 30-minute deadline.
+### Example API Usage
+
+**Create a User:**
+```bash
+curl -X POST "http://localhost:8000/users" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "johndoe",
+    "email": "john@example.com",
+    "password": "securepass123"
+  }'
+```
+
+**Get a User:**
+```bash
+curl "http://localhost:8000/users/1"
+```
+
+## 🐳 Docker
+
+### Build Docker Image
+```bash
+docker build -t fastapi-user-management .
+```
+
+### Run with Docker Compose
+```bash
+docker-compose up -d
+```
+
+### Stop Services
+```bash
+docker-compose down
+```
+
+### View Logs
+```bash
+docker-compose logs -f web
+```
+
+## 🔄 CI/CD Pipeline
+
+The project uses GitHub Actions for automated testing and deployment:
+
+### Workflow Steps
+1. **Test**: Runs all tests with PostgreSQL service
+2. **Lint**: Code quality checks with Black and isort
+3. **Build & Push**: Builds and pushes Docker image to Docker Hub (on main branch)
+
+### GitHub Secrets Required
+
+Set these in your GitHub repository settings (Settings → Secrets and variables → Actions):
+
+- `DOCKER_USERNAME`: Your Docker Hub username
+- `DOCKER_PASSWORD`: Your Docker Hub password or access token
+
+### Docker Hub Repository
+
+The Docker image is automatically pushed to Docker Hub on successful builds:
+
+**Docker Hub Link**: `https://hub.docker.com/r/<YOUR_DOCKER_USERNAME>/fastapi-user-management`
+
+To pull and run the image:
+```bash
+docker pull <YOUR_DOCKER_USERNAME>/fastapi-user-management:latest
+docker run -p 8000:8000 -e DATABASE_URL=<your-db-url> <YOUR_DOCKER_USERNAME>/fastapi-user-management:latest
+```
+
+## 🏗️ Project Structure
+
+```
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml          # GitHub Actions workflow
+├── src/
+│   ├── calculator/            # Original calculator module (legacy)
+│   ├── main.py               # FastAPI application
+│   ├── models.py             # SQLAlchemy models
+│   ├── schemas.py            # Pydantic schemas
+│   ├── database.py           # Database configuration
+│   └── security.py           # Password hashing utilities
+├── tests/
+│   ├── conftest.py           # Pytest configuration
+│   ├── test_unit.py          # Unit tests
+│   └── test_integration.py   # Integration tests
+├── Dockerfile                # Docker image definition
+├── docker-compose.yml        # Multi-container setup
+├── requirements.txt          # Python dependencies
+├── .env.example             # Environment variables template
+└── README.md                # This file
+```
+
+## 🔒 Security Features
+
+- **Password Hashing**: Uses bcrypt via passlib for secure password storage
+- **Unique Constraints**: Ensures username and email uniqueness at database level
+- **Input Validation**: Pydantic schemas validate all input data
+- **Password Requirements**: Minimum 8 characters enforced
+- **No Password Exposure**: Password hashes never returned in API responses
+
+## 🧰 Technology Stack
+
+- **Framework**: FastAPI
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Validation**: Pydantic
+- **Security**: Passlib (bcrypt)
+- **Testing**: Pytest, HTTPx
+- **Containerization**: Docker, Docker Compose
+- **CI/CD**: GitHub Actions
+
+## 📝 Development
+
+### Code Quality
+
+```bash
+# Format code
+black src/ tests/
+
+# Sort imports
+isort src/ tests/
+
+# Run linter
+pylint src/
+```
+
+### Database Migrations (Future Enhancement)
+
+For production deployments, consider using Alembic for database migrations:
+```bash
+alembic init alembic
+alembic revision --autogenerate -m "Initial migration"
+alembic upgrade head
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is part of an academic assignment for IS 218.
+
+## 👤 Author
+
+**Yash**
+
+- GitHub: [@Yash1x](https://github.com/Yash1x)
+- Docker Hub: `https://hub.docker.com/r/<YOUR_DOCKER_USERNAME>/fastapi-user-management`
+
+## 🙏 Acknowledgments
+
+- FastAPI documentation and community
+- SQLAlchemy team
+- Course instructor and teaching assistants

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .calculator-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 20px;
+            min-height: 60px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item .equation {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .history-item .result {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .history-item .time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+        
+        .logout-btn:hover {
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .no-history {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Calculator App</h1>
+            <p>Secure Calculator with User Authentication</p>
+        </div>
+        
+        <div class="content">
+            <!-- Auth Section (shown when not logged in) -->
+            <div id="authSection">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="tab" onclick="switchAuthTab('register')">Register</button>
+                </div>
+                
+                <div id="loginTab" class="tab-content active">
+                    <h2 style="margin-bottom: 20px;">Login to Your Account</h2>
+                    <div id="loginAlert"></div>
+                    <form onsubmit="login(event)">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+                
+                <div id="registerTab" class="tab-content">
+                    <h2 style="margin-bottom: 20px;">Create New Account</h2>
+                    <div id="registerAlert"></div>
+                    <form onsubmit="register(event)">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="registerUsername" required minlength="3">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="registerEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="registerPassword" required minlength="8">
+                        </div>
+                        <button type="submit">Register</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Calculator Section (shown when logged in) -->
+            <div id="calcSection" class="hidden">
+                <div class="user-info">
+                    <h3>👤 Welcome, <span id="currentUsername"></span>!</h3>
+                    <p>Email: <span id="currentEmail"></span></p>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchCalcTab('calculator')">Calculator</button>
+                    <button class="tab" onclick="switchCalcTab('history')">History</button>
+                </div>
+                
+                <div id="calculatorTab" class="tab-content active">
+                    <div id="calcAlert"></div>
+                    <div class="calculator-display" id="display">0</div>
+                    
+                    <form onsubmit="calculate(event)">
+                        <div class="calc-grid">
+                            <div class="form-group">
+                                <label>First Number</label>
+                                <input type="number" step="any" id="operand1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Second Number</label>
+                                <input type="number" step="any" id="operand2" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Operation</label>
+                            <select id="operation" required>
+                                <option value="add">➕ Addition</option>
+                                <option value="subtract">➖ Subtraction</option>
+                                <option value="multiply">✖️ Multiplication</option>
+                                <option value="divide">➗ Division</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit">Calculate</button>
+                    </form>
+                </div>
+                
+                <div id="historyTab" class="tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>Calculation History</h2>
+                        <button onclick="clearHistory()" style="width: auto; background: #dc3545;">Clear All</button>
+                    </div>
+                    <div id="historyList"></div>
+                </div>
+                
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        
+        // Check if already logged in
+        if (token) {
+            loadUserData();
+        }
+        
+        function switchAuthTab(tab) {
+            document.querySelectorAll('#authSection .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#authSection .tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('#authSection .tab:first-child').classList.add('active');
+                document.getElementById('loginTab').classList.add('active');
+            } else {
+                document.querySelector('#authSection .tab:last-child').classList.add('active');
+                document.getElementById('registerTab').classList.add('active');
+            }
+        }
+        
+        function switchCalcTab(tab) {
+            document.querySelectorAll('#calcSection .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#calcSection .tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'calculator') {
+                document.querySelector('#calcSection .tab:first-child').classList.add('active');
+                document.getElementById('calculatorTab').classList.add('active');
+            } else {
+                document.querySelector('#calcSection .tab:last-child').classList.add('active');
+                document.getElementById('historyTab').classList.add('active');
+                loadHistory();
+            }
+        }
+        
+        async function register(event) {
+            event.preventDefault();
+            const alertDiv = document.getElementById('registerAlert');
+            
+            const data = {
+                username: document.getElementById('registerUsername').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value
+            };
+            
+            try {
+                const response = await fetch('/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alertDiv.innerHTML = '<div class="alert alert-success">Account created! Please login.</div>';
+                    setTimeout(() => switchAuthTab('login'), 1500);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">${result.detail || 'Registration failed'}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Network error. Please try again.</div>';
+            }
+        }
+        
+        async function login(event) {
+            event.preventDefault();
+            const alertDiv = document.getElementById('loginAlert');
+            
+            const data = {
+                username: document.getElementById('loginUsername').value,
+                password: document.getElementById('loginPassword').value
+            };
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    token = result.access_token;
+                    localStorage.setItem('token', token);
+                    alertDiv.innerHTML = '<div class="alert alert-success">Login successful!</div>';
+                    setTimeout(() => loadUserData(), 500);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">${result.detail || 'Login failed'}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Network error. Please try again.</div>';
+            }
+        }
+        
+        async function loadUserData() {
+            try {
+                const response = await fetch('/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('currentUsername').textContent = user.username;
+                    document.getElementById('currentEmail').textContent = user.email;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('calcSection').classList.remove('hidden');
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+        
+        async function calculate(event) {
+            event.preventDefault();
+            const alertDiv = document.getElementById('calcAlert');
+            
+            const data = {
+                operation: document.getElementById('operation').value,
+                operand1: parseFloat(document.getElementById('operand1').value),
+                operand2: parseFloat(document.getElementById('operand2').value)
+            };
+            
+            try {
+                const response = await fetch('/calculator', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const display = document.getElementById('display');
+                    display.textContent = `${data.operand1} ${getOperatorSymbol(data.operation)} ${data.operand2} = ${result.result}`;
+                    alertDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                    setTimeout(() => alertDiv.innerHTML = '', 3000);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">${result.detail || 'Calculation failed'}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Network error. Please try again.</div>';
+            }
+        }
+        
+        function getOperatorSymbol(op) {
+            const symbols = {
+                'add': '+',
+                'subtract': '-',
+                'multiply': '×',
+                'divide': '÷'
+            };
+            return symbols[op] || op;
+        }
+        
+        async function loadHistory() {
+            const historyDiv = document.getElementById('historyList');
+            
+            try {
+                const response = await fetch('/calculator/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const history = await response.json();
+                
+                if (history.length === 0) {
+                    historyDiv.innerHTML = '<div class="no-history">No calculations yet. Start calculating!</div>';
+                } else {
+                    historyDiv.innerHTML = history.map(item => `
+                        <div class="history-item">
+                            <div>
+                                <div class="equation">${item.operand1} ${getOperatorSymbol(item.operation)} ${item.operand2}</div>
+                                <div class="time">${new Date(item.created_at).toLocaleString()}</div>
+                            </div>
+                            <div class="result">= ${item.result}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                historyDiv.innerHTML = '<div class="alert alert-error">Failed to load history</div>';
+            }
+        }
+        
+        async function clearHistory() {
+            if (!confirm('Are you sure you want to clear all calculation history?')) {
+                return;
+            }
+            
+            try {
+                await fetch('/calculator/history', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadHistory();
+            } catch (error) {
+                alert('Failed to clear history');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('calcSection').classList.add('hidden');
+            document.getElementById('loginAlert').innerHTML = '';
+            document.getElementById('registerAlert').innerHTML = '';
+            document.getElementById('display').textContent = '0';
+        }
+    </script>
+</body>
+</html>
