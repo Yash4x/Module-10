@@ -1,16 +1,36 @@
-# FastAPI User Management System
+# Calculator API with User Authentication
 
-A production-ready FastAPI application featuring secure user authentication, SQLAlchemy database integration, comprehensive testing, and automated CI/CD deployment.
+A secure FastAPI calculator application with user authentication, JWT tokens, and calculation history tracking.
 
 ## 🚀 Features
 
-- **Secure User Management**: Create, read, and delete users with unique constraints
-- **Password Security**: Bcrypt password hashing with verification
-- **Database Integration**: PostgreSQL with SQLAlchemy ORM
-- **Data Validation**: Pydantic schemas for request/response validation
-- **Comprehensive Testing**: Unit and integration tests with pytest
-- **CI/CD Pipeline**: Automated testing and Docker Hub deployment via GitHub Actions
-- **Containerization**: Docker and Docker Compose for easy deployment
+### User Management
+- User registration with email validation
+- Secure password hashing with bcrypt
+- JWT token-based authentication
+- User profile management
+
+### Calculator Operations
+- **Addition**: Add two numbers
+- **Subtraction**: Subtract two numbers
+- **Multiplication**: Multiply two numbers
+- **Division**: Divide two numbers (with zero-division protection)
+- All operations require authentication
+- Automatic calculation history tracking
+
+### Calculation History
+- View your calculation history
+- Pagination support for large histories
+- Clear history option
+- Per-user isolation (users only see their own calculations)
+
+### Production Ready
+- PostgreSQL database with SQLAlchemy ORM
+- Docker containerization
+- Comprehensive test suite (40+ tests)
+- CI/CD pipeline with GitHub Actions
+- Automatic Docker Hub deployment
+- Interactive API documentation (Swagger UI)
 
 ## 📋 Requirements
 
@@ -18,263 +38,325 @@ A production-ready FastAPI application featuring secure user authentication, SQL
 - PostgreSQL 15+
 - Docker & Docker Compose (optional, for containerized deployment)
 
-## 🛠️ Installation & Setup
+## 🏁 Quick Start
 
-### Local Development Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd is218-test1-Yash
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
-
-5. **Run with Docker Compose (Recommended)**
-   ```bash
-   docker-compose up -d
-   ```
-   
-   The API will be available at `http://localhost:8000`
-
-### Manual Database Setup
-
-If running without Docker:
+### Using Docker (Recommended)
 
 ```bash
-# Create PostgreSQL database
-createdb fastapi_db
+# Start the application
+docker-compose up --build
 
-# Set DATABASE_URL in .env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fastapi_db
+# Application will be available at:
+# - API: http://localhost:8000
+# - Interactive docs: http://localhost:8000/docs
+# - Alternative docs: http://localhost:8000/redoc
+```
+
+### Manual Setup
+
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your database credentials
 
 # Run the application
 uvicorn src.main:app --reload
 ```
 
-## 🧪 Running Tests
+## 🔐 Using the API
 
-### Run All Tests
+### 1. Register a User
+
 ```bash
-pytest
-```
-
-### Run Unit Tests Only
-```bash
-pytest tests/test_unit.py -v
-```
-
-### Run Integration Tests Only
-```bash
-pytest tests/test_integration.py -v
-```
-
-### Run with Coverage
-```bash
-pytest --cov=src --cov-report=html --cov-report=term-missing
-```
-
-View coverage report:
-```bash
-open htmlcov/index.html  # On macOS
-# Or navigate to htmlcov/index.html in your browser
-```
-
-### Test Requirements
-
-- **Unit tests** test individual components (password hashing, schema validation)
-- **Integration tests** require a database connection and test complete workflows
-- The test suite uses SQLite for integration tests to avoid database setup complexity
-
-## 📚 API Documentation
-
-Once the application is running, visit:
-- **Interactive API docs (Swagger)**: http://localhost:8000/docs
-- **Alternative docs (ReDoc)**: http://localhost:8000/redoc
-
-### API Endpoints
-
-#### Health Check
-- `GET /` - Root endpoint
-- `GET /health` - Health check status
-
-#### User Management
-- `POST /users` - Create a new user
-- `GET /users/{user_id}` - Get user by ID
-- `GET /users` - List all users (with pagination)
-- `DELETE /users/{user_id}` - Delete a user
-
-### Example API Usage
-
-**Create a User:**
-```bash
-curl -X POST "http://localhost:8000/users" \
+curl -X POST http://localhost:8000/users \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "johndoe",
+    "username": "john",
     "email": "john@example.com",
     "password": "securepass123"
   }'
 ```
 
-**Get a User:**
+### 2. Login to Get Token
+
 ```bash
-curl "http://localhost:8000/users/1"
+curl -X POST http://localhost:8000/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "john",
+    "password": "securepass123"
+  }'
 ```
 
-## 🐳 Docker
-
-### Build Docker Image
-```bash
-docker build -t fastapi-user-management .
+Response:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
 ```
 
-### Run with Docker Compose
+### 3. Use the Calculator
+
 ```bash
-docker-compose up -d
+# Addition
+curl -X POST http://localhost:8000/calculator \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "operation": "add",
+    "operand1": 5,
+    "operand2": 3
+  }'
+
+# Subtraction
+curl -X POST http://localhost:8000/calculator \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "operation": "subtract",
+    "operand1": 10,
+    "operand2": 4
+  }'
+
+# Multiplication
+curl -X POST http://localhost:8000/calculator \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "operation": "multiply",
+    "operand1": 6,
+    "operand2": 7
+  }'
+
+# Division
+curl -X POST http://localhost:8000/calculator \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "operation": "divide",
+    "operand1": 15,
+    "operand2": 3
+  }'
 ```
 
-### Stop Services
+### 4. View Calculation History
+
 ```bash
-docker-compose down
+# Get all history
+curl http://localhost:8000/calculator/history \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Get paginated history
+curl "http://localhost:8000/calculator/history?skip=0&limit=10" \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### View Logs
+### 5. Clear History
+
 ```bash
-docker-compose logs -f web
+curl -X DELETE http://localhost:8000/calculator/history \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-## 🔄 CI/CD Pipeline
+## 📚 API Endpoints
 
-The project uses GitHub Actions for automated testing and deployment:
+### Authentication
+- `POST /users` - Register a new user
+- `POST /login` - Login and get JWT token
+- `GET /me` - Get current user info (requires authentication)
 
-### Workflow Steps
-1. **Test**: Runs all tests with PostgreSQL service
-2. **Lint**: Code quality checks with Black and isort
-3. **Build & Push**: Builds and pushes Docker image to Docker Hub (on main branch)
+### Calculator Operations (All require authentication)
+- `POST /calculator` - Perform calculation
+  - Operations: `add`, `subtract`, `multiply`, `divide`
+  - Request body: `{"operation": "add", "operand1": 5, "operand2": 3}`
+  - Returns: `{"operation": "add", "operand1": 5, "operand2": 3, "result": 8, "message": "..."}`
 
-### GitHub Secrets Required
+### Calculation History (Requires authentication)
+- `GET /calculator/history` - Get calculation history
+  - Query params: `skip` (default: 0), `limit` (default: 100)
+- `DELETE /calculator/history` - Clear all calculation history
 
-Set these in your GitHub repository settings (Settings → Secrets and variables → Actions):
+### User Management
+- `GET /users/{id}` - Get user by ID
+- `GET /users` - List all users
+- `DELETE /users/{id}` - Delete user
 
-- `DOCKER_USERNAME`: Your Docker Hub username
-- `DOCKER_PASSWORD`: Your Docker Hub password or access token
+**Interactive Documentation**: Visit http://localhost:8000/docs for Swagger UI
 
-### Docker Hub Repository
+## 🧪 Testing
 
-The Docker image is automatically pushed to Docker Hub on successful builds:
-
-**Docker Hub Link**: `https://hub.docker.com/r/<YOUR_DOCKER_USERNAME>/fastapi-user-management`
-
-To pull and run the image:
 ```bash
-docker pull <YOUR_DOCKER_USERNAME>/fastapi-user-management:latest
-docker run -p 8000:8000 -e DATABASE_URL=<your-db-url> <YOUR_DOCKER_USERNAME>/fastapi-user-management:latest
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+
+# Run specific test file
+pytest tests/test_calculator_integration.py -v
+
+# Run specific test class
+pytest tests/test_calculator_integration.py::TestCalculatorEndpoints -v
 ```
+
+### Test Coverage
+
+The project includes 40+ tests:
+- **Unit Tests** (11 tests)
+  - Password hashing (6 tests)
+  - Schema validation (5 tests)
+  
+- **Integration Tests - User Management** (14 tests)
+  - User creation, retrieval, deletion
+  - Error handling
+  
+- **Integration Tests - Calculator & Auth** (15+ tests)
+  - Authentication endpoints
+  - Calculator operations
+  - Calculation history
+  - User isolation
 
 ## 🏗️ Project Structure
 
 ```
+is218-test1-Yash/
+├── src/
+│   ├── calculator/
+│   │   ├── __init__.py
+│   │   └── operations.py          # Core calculator functions
+│   ├── __init__.py
+│   ├── main.py                     # FastAPI application
+│   ├── models.py                   # SQLAlchemy User model
+│   ├── calculation_model.py        # SQLAlchemy Calculation model
+│   ├── schemas.py                  # Pydantic user schemas
+│   ├── calculator_schemas.py       # Pydantic calculator schemas
+│   ├── database.py                 # Database configuration
+│   ├── security.py                 # Password hashing
+│   └── auth.py                     # JWT authentication
+├── tests/
+│   ├── __init__.py
+│   ├── test_unit.py               # Unit tests
+│   ├── test_integration.py        # User management integration tests
+│   ├── test_calculator_integration.py  # Calculator integration tests
+│   └── test_operations.py         # Original calculator tests
 ├── .github/
 │   └── workflows/
-│       └── ci-cd.yml          # GitHub Actions workflow
-├── src/
-│   ├── calculator/            # Original calculator module (legacy)
-│   ├── main.py               # FastAPI application
-│   ├── models.py             # SQLAlchemy models
-│   ├── schemas.py            # Pydantic schemas
-│   ├── database.py           # Database configuration
-│   └── security.py           # Password hashing utilities
-├── tests/
-│   ├── conftest.py           # Pytest configuration
-│   ├── test_unit.py          # Unit tests
-│   └── test_integration.py   # Integration tests
-├── Dockerfile                # Docker image definition
-├── docker-compose.yml        # Multi-container setup
-├── requirements.txt          # Python dependencies
-├── .env.example             # Environment variables template
-└── README.md                # This file
+│       └── ci-cd.yml              # CI/CD pipeline
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── Makefile
+└── README.md
 ```
 
-## 🔒 Security Features
+## 🔧 Environment Variables
 
-- **Password Hashing**: Uses bcrypt via passlib for secure password storage
-- **Unique Constraints**: Ensures username and email uniqueness at database level
-- **Input Validation**: Pydantic schemas validate all input data
-- **Password Requirements**: Minimum 8 characters enforced
-- **No Password Exposure**: Password hashes never returned in API responses
+Create a `.env` file with:
 
-## 🧰 Technology Stack
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 
-- **Framework**: FastAPI
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy
-- **Validation**: Pydantic
-- **Security**: Passlib (bcrypt)
-- **Testing**: Pytest, HTTPx
-- **Containerization**: Docker, Docker Compose
-- **CI/CD**: GitHub Actions
+# JWT Configuration
+SECRET_KEY=your-super-secret-key-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-## 📝 Development
+# Testing
+TESTING=0  # Set to 1 for test mode
+```
 
-### Code Quality
+## 🐳 Docker Deployment
+
+### Using Docker Compose
 
 ```bash
-# Format code
-black src/ tests/
+# Start services
+docker-compose up -d
 
-# Sort imports
-isort src/ tests/
+# View logs
+docker-compose logs -f
 
-# Run linter
-pylint src/
+# Stop services
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up --build
 ```
 
-### Database Migrations (Future Enhancement)
+### Manual Docker Build
 
-For production deployments, consider using Alembic for database migrations:
 ```bash
-alembic init alembic
-alembic revision --autogenerate -m "Initial migration"
-alembic upgrade head
+# Build image
+docker build -t calculator-api .
+
+# Run container
+docker run -p 8000:8000 \
+  -e DATABASE_URL=postgresql://user:pass@host/db \
+  calculator-api
 ```
+
+## 🚀 CI/CD Pipeline
+
+The project includes a GitHub Actions workflow that:
+1. Runs on every push and pull request
+2. Sets up Python 3.11 environment
+3. Installs dependencies
+4. Runs PostgreSQL service for integration tests
+5. Executes all tests
+6. Builds Docker image
+7. Pushes to Docker Hub (on main branch)
+
+**Required GitHub Secrets:**
+- `DOCKERHUB_USERNAME` - Your Docker Hub username
+- `DOCKERHUB_TOKEN` - Your Docker Hub access token
+
+## 📖 Development Guide
+
+### Adding New Calculator Operations
+
+1. Add function to `src/calculator/operations.py`
+2. Update `src/main.py` calculate endpoint to handle new operation
+3. Add tests to `tests/test_calculator_integration.py`
+
+### Security Considerations
+
+- JWT tokens expire after 30 minutes (configurable)
+- Passwords are hashed with bcrypt
+- Database passwords stored in environment variables
+- HTTPS recommended for production
+- SECRET_KEY must be changed in production
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `pytest`
+5. Submit a pull request
 
-## 📄 License
+## 📝 License
 
-This project is part of an academic assignment for IS 218.
+This project is for educational purposes as part of IS218.
 
-## 👤 Author
+## 🙋 Support
 
-**Yash**
+For issues or questions:
+- Check the interactive docs at http://localhost:8000/docs
+- Review test files for usage examples
+- Open an issue on GitHub
 
-- GitHub: [@Yash1x](https://github.com/Yash1x)
-- Docker Hub: `https://hub.docker.com/r/<YOUR_DOCKER_USERNAME>/fastapi-user-management`
+---
 
-## 🙏 Acknowledgments
-
-- FastAPI documentation and community
-- SQLAlchemy team
-- Course instructor and teaching assistants
+**Built with**: FastAPI, SQLAlchemy, PostgreSQL, Docker, pytest
